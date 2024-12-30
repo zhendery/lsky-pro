@@ -32,6 +32,7 @@ use App\Models\Image;
 use App\Models\Strategy;
 use App\Models\User;
 use App\Utils;
+use App\Services\ImageCompressService;
 use Aws\S3\S3Client;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -159,12 +160,19 @@ class ImageService
             if ($quality < 100 || $format) {
                 // 获取拓展名，判断是否需要转换
                 $format = $format ?: $extension;
+
+                $uploadFile = './'. $format;
+                move_uploaded_file($file->getRealPath(), $uploadFile);
+                $img = new ImageCompressService($uploadFile, $format, $quality);
+                $img->compressImgLow();
+                // 释放
+                ob_flush();
+                flush();
+
                 $filename = Str::replaceLast($extension, $format, $file->getClientOriginalName());
-                $handleImage = InterventionImage::make($file)->save($format, $quality);
-                $file = new UploadedFile($handleImage->basePath(), $filename, $handleImage->mime());
+                $file = new UploadedFile($uploadFile, $filename, mime_content_type($uploadFile));
                 // 重新设置拓展名
                 $extension = $format;
-                $handleImage->destroy();
             }
 
             // 是否启用水印，覆盖原图片
