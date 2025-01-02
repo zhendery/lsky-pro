@@ -2,7 +2,7 @@
     <input type="file" id="picker" name="file" class="hidden" accept="{{ implode(',', array_map(fn ($ext) => '.'.$ext, $_group->configs->get(\App\Enums\GroupConfigKey::AcceptedFileSuffixes))) }}" multiple>
 
     <div class="mb-4 p-4 bg-white rounded-md shadow-custom">
-        <h1 class="tracking-wider text-2xl text-gray-700 mb-2" style="text-shadow: -4px 4px 0 rgb(0 0 0 / 10%);">Image Upload</h1>
+        <h1 class="tracking-wider text-2xl text-gray-700 mb-2" style="text-shadow: -4px 4px 0 rgb(0 0 0 / 10%);">图片上传</h1>
         <p class="text-gray-500 text-sm">
             最大可上传 {{ \App\Utils::formatSize($_group->configs->get(\App\Enums\GroupConfigKey::MaximumFileSize) * 1024) }} 的图片，上传队列最多
             {{ $_group->configs->get(\App\Enums\GroupConfigKey::ConcurrentUploadNum) }}
