@@ -164,7 +164,7 @@ class ImageService
                 $filename = Str::replaceLast($extension, $format, $file->getClientOriginalName());
                 $filename = 'tmp_' . md5_file($file->getRealPath()) . $filename;
 
-                $handleImagePath = 'public/' . $filename;
+                $handleImagePath = './' . $filename;
                 
                 // 如果原格式是psd，则需要先合并图层
                 if($extension === 'psd' && $format !== 'psd'){
@@ -186,7 +186,7 @@ class ImageService
                 // 加载转换后的新图片
                 $handleImage->clear();
                 $handleImage->readImage($handleImagePath);
-                $file = new UploadedFile('./' . $filename, $filename, $handleImage->getImageMimeType());
+                $file = new UploadedFile($handleImagePath, $filename, $handleImage->getImageMimeType());
 
                 // 重新设置拓展名
                 $extension = $format;
