@@ -151,32 +151,63 @@ class ImageService
         // 上传频率限制
         $this->rateLimiter($configs, $request);
 
-        // 图片处理，跳过 ico gif svg
-        if (! in_array($extension, ['ico', 'gif', 'svg'])) {
+        $format = $configs->get(GroupConfigKey::ImageSaveFormat);
+        // 图片处理，跳过 ico svg
+        if (! in_array($extension, ['ico', 'svg']) && ! in_array($format, ['ico', 'svg'])) {
             // 图片保存质量与格式
             $quality = $configs->get(GroupConfigKey::ImageSaveQuality, 75);
-            $format = $configs->get(GroupConfigKey::ImageSaveFormat);
+
+            $handleImage = new \Imagick($file->getRealPath());
             if ($quality < 100 || $format) {
                 // 获取拓展名，判断是否需要转换
                 $format = $format ?: $extension;
                 $filename = Str::replaceLast($extension, $format, $file->getClientOriginalName());
-                $handleImage = InterventionImage::make($file)->save($format, $quality);
-                $file = new UploadedFile($handleImage->basePath(), $filename, $handleImage->mime());
+                $filename = 'tmp_' . md5_file($file->getRealPath()) . $filename;
+
+                $handleImagePath = 'public/' . $filename;
+                
+                // 如果原格式是psd，则需要先合并图层
+                if($extension === 'psd' && $format !== 'psd'){
+                    $flattened = $handleImage->flattenImages();
+                    $handleImage->destroy();
+                    $handleImage = $flattened;
+                }
+
+                // 设置图片保存质量
+                $handleImage->setImageCompressionQuality($quality);
+
+                // 如果目标格式是动态的，则存储为多页，否则存储为单页
+                if(in_array($format, ['gif', 'webp', 'psd'])){
+                    $result = $handleImage->writeImages($handleImagePath, true);
+                }else{
+                    $result = $handleImage->writeImage($handleImagePath);
+                }
+
+                // 加载转换后的新图片
+                $handleImage->clear();
+                $handleImage->readImage($handleImagePath);
+                $file = new UploadedFile('./' . $filename, $filename, $handleImage->getImageMimeType());
+
                 // 重新设置拓展名
                 $extension = $format;
-                $handleImage->destroy();
             }
 
+            
             // 是否启用水印，覆盖原图片
             if (
                 $configs->get(GroupConfigKey::IsEnableWatermark) &&
                 collect($configs->get(GroupConfigKey::WatermarkConfigs))->get('mode', Mode::Overlay) == Mode::Overlay
             ) {
-                $watermarkImage = $this->stickWatermark($file, collect($configs->get(GroupConfigKey::WatermarkConfigs)));
-                $watermarkImage->save();
-                $file = new UploadedFile($watermarkImage->basePath(), $file->getClientOriginalName(), $file->getMimeType());
-                $watermarkImage->destroy();
+                $frameCount = $handleImage->getNumberImages();
+                // 动态图片不能添加水印
+                if ($frameCount == 1) {
+                    $watermarkImage = $this->stickWatermark($file, collect($configs->get(GroupConfigKey::WatermarkConfigs)));
+                    $watermarkImage->save();
+                    $file = new UploadedFile($watermarkImage->basePath(), $file->getClientOriginalName(), $file->getMimeType());
+                    $watermarkImage->destroy();
+                }
             }
+            $handleImage->destroy();
         }
 
         $filename = $this->replacePathname(
@@ -270,6 +301,8 @@ class ImageService
         if(!in_array($extension, ['svg'])) {
             $this->makeThumbnail($image, $file);
         }
+
+        unlink($file->getPathname());
 
         return $image;
     }
