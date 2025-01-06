@@ -161,10 +161,10 @@ class ImageService
             if ($quality < 100 || $format) {
                 // 获取拓展名，判断是否需要转换
                 $format = $format ?: $extension;
+                // 最终上传时以原文件名来命名
                 $filename = Str::replaceLast($extension, $format, $file->getClientOriginalName());
-                $filename = 'tmp_' . md5_file($file->getRealPath()) . $filename;
-
-                $handleImagePath = './' . $filename;
+                // 转换格式后的临时文件，待后续上传到存储空间
+                $handleImagePath = './tmp_' . md5_file($file->getRealPath()) . '.' . $format;
                 
                 // 如果原格式是psd，则需要先合并图层
                 if($extension === 'psd' && $format !== 'psd'){
