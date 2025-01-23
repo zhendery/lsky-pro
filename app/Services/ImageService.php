@@ -605,7 +605,7 @@ class ImageService
                         $height = (int)($h * $scale);
                     }
 
-                    $img->fit($width, $height, fn($constraint) => $constraint->upsize())->encode('png', 60)->save($pathname);
+                    $img->fit($width, $height, fn($constraint) => $constraint->upsize())->encode('webp', 60)->save($pathname);
                     $img->destroy();
                 }
             } catch (\Throwable $e) {

@@ -240,7 +240,7 @@ class Image extends Model
 
     public function getThumbnailPathname(): string
     {
-        return trim(config('app.thumbnail_path'), '/')."/{$this->md5}.". ($this->extension === 'svg' ? 'svg' : "png");
+        return trim(config('app.thumbnail_path'), '/')."/{$this->md5}.". ($this->extension === 'svg' ? 'svg' : "webp");
     }
 
     private function generateKey($length = 6): string
