@@ -299,6 +299,7 @@ class ImageService
 
         $this->makeThumbnail($image, $file);
 
+        // 上传完成后删除临时文件
         unlink($file->getPathname());
 
         return $image;
