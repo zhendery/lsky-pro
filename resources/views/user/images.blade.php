@@ -207,6 +207,7 @@
         <script>
             let gridConfigs = {
                 rowHeight: 180,
+                maxRowHeight: 190,
                 margins: 16,
                 captions: false,
                 border: 10,

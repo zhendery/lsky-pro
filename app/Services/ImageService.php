@@ -577,7 +577,7 @@ class ImageService
      * @param bool $force 是否强制覆盖
      * @return void
      */
-    public function makeThumbnail(Image $image, mixed $data, int $max = 400, bool $force = false): void
+    public function makeThumbnail(Image $image, mixed $data, int $max = 256, bool $force = false): void
     {
         $pathname = public_path($image->getThumbnailPathname());
 
@@ -599,8 +599,9 @@ class ImageService
                     $width = $w = $image->width;
                     $height = $h = $image->height;
 
-                    if ($w > $max && $h > $max) {
-                        $scale = min($max / $w, $max / $h);
+                    // 因为前端按高度排版，所以如果按宽度缩放会巨糊。改成都按高度缩放，但宽度也给个固定上限。
+                    if ($w > 1024 || $h > $max) {
+                        $scale = min(1024 / $w, $max / $h);
                         $width  = (int)($w * $scale);
                         $height = (int)($h * $scale);
                     }
