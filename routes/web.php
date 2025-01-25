@@ -115,5 +115,4 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth.admin']], function () 
     });
 });
 
-require __DIR__.'/image.php';
 require __DIR__.'/auth.php';
