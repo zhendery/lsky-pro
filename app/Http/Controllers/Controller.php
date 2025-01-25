@@ -168,7 +168,7 @@ class Controller extends BaseController
                     $response = new StreamedResponse(function() { }, 304);
                     $response->headers->set('ETag', $eTag);
                     $response->headers->set('Content-type', $mimetype);
-                    $response->headers->set('Cache-Control', 'public, max-age=' . $cacheTtl);
+                    $response->headers->set('Cache-Control', 'public, s-maxage=' . $cacheTtl . ', max-age=3600');
                     return $response;
                 }
             } else {
@@ -214,7 +214,7 @@ class Controller extends BaseController
             return \response()->stream(function () use ($contents) {
                 echo $contents;
             }, headers: ['Content-type' => $mimetype, 
-                        'Cache-Control' => 'public, max-age=' . $cacheTtl,
+                        'Cache-Control' => 'public, s-maxage=' . $cacheTtl . ', max-age=3600',
                         'ETag' => $eTag,
                         ]);
         } else {
