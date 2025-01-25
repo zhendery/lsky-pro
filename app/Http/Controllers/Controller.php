@@ -152,25 +152,11 @@ class Controller extends BaseController
         if (! $image->group?->configs->get(GroupConfigKey::IsEnableOriginalProtection)) {
             abort(404);
         }
-
-
-        $cacheTtl = (int)$image->group?->configs->get(GroupConfigKey::ImageCacheTtl, 0);
-        $mimetype = $image->mimetype;
         try {
             $cacheKey = "image_{$image->key}";
 
             if (Cache::has($cacheKey)) {
                 $contents = Cache::get($cacheKey);
-                
-                $eTag = md5($contents);
-                // 资源未更改，返回 304 Not Modified
-                if ($request->header('If-None-Match') === $eTag) {
-                    $response = new StreamedResponse(function() { }, 304);
-                    $response->headers->set('ETag', $eTag);
-                    $response->headers->set('Content-type', $mimetype);
-                    $response->headers->set('Cache-Control', 'public, s-maxage=' . $cacheTtl . ', max-age=3600');
-                    return $response;
-                }
             } else {
                 $contents = $image->filesystem()->read($image->pathname);
                 $configs = collect($image->group?->configs->get(GroupConfigKey::WatermarkConfigs));
@@ -184,6 +170,7 @@ class Controller extends BaseController
                     $quality = $image->group?->configs->get(GroupConfigKey::ImageSaveQuality, 75);
                     $contents = $service->stickWatermark($contents, $configs)->encode($image->extension, $quality)->getEncoded();
                 }
+                $cacheTtl = (int)$image->group?->configs->get(GroupConfigKey::ImageCacheTtl, 0);
                 // 是否启用了缓存
                 if ($cacheTtl) {
                     Cache::remember($cacheKey, $cacheTtl, fn () => $contents);
@@ -195,6 +182,8 @@ class Controller extends BaseController
             Utils::e($e, '图片输出时出现异常');
             abort(404);
         }
+
+        $mimetype = $image->mimetype;
 
         // ico svg 图片直接输出，不经过 InterventionImage 处理
         if (in_array($image->extension, ['ico', 'svg'])) {
@@ -209,18 +198,12 @@ class Controller extends BaseController
 
         out:
 
-        if ($cacheTtl) {
-            $eTag = md5($contents);
-            return \response()->stream(function () use ($contents) {
-                echo $contents;
-            }, headers: ['Content-type' => $mimetype, 
-                        'Cache-Control' => 'public, s-maxage=' . $cacheTtl . ', max-age=3600',
-                        'ETag' => $eTag,
-                        ]);
-        } else {
-            return \response()->stream(function () use ($contents) {
-                echo $contents;
-            }, headers: ['Content-type' => $mimetype]);
-        }
+        return \response()->stream(function () use ($contents) {
+            echo $contents;
+        }, headers: [
+            'Content-Type' => $mimetype,
+            'Cache-Control' => 'public, s-maxage=2628000, max-age=120',
+            'ETag' => md5($contents),
+        ]);
     }
 }
