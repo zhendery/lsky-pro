@@ -201,7 +201,7 @@ class Controller extends BaseController
         return \response()->stream(function () use ($contents) {
             echo $contents;
         }, headers: ['Content-Type' => $mimetype,
-            'Cache-Control' => 'public, s-maxage=2628000, max-age=3600',
+            'Cache-Control' => 'public, max-age=2628000',
             'ETag' => md5($contents),
         ]);
     }
