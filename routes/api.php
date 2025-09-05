@@ -36,6 +36,7 @@ Route::group([
         Route::get('albums', [AlbumController::class, 'index']);
         Route::delete('albums/{id}', [AlbumController::class, 'destroy']);
         Route::delete('tokens', [TokenController::class, 'clear']);
+        Route::delete('token/{id}', [TokenController::class, 'destroy']);
         Route::get('profile', [UserController::class, 'index']);
     });
 });

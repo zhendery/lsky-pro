@@ -42,4 +42,12 @@ class TokenController extends Controller
         $user->tokens()->delete();
         return $this->success();
     }
+
+    public function destroy(Request $request): Response
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $user->tokens()->where('id', $request->route('id'))->delete();
+        return $this->success('删除成功');
+    }
 }
