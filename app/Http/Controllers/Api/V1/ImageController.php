@@ -13,6 +13,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ImageController extends Controller
 {
@@ -71,6 +72,30 @@ class ImageController extends Controller
             ]);
         });
         return $this->success('success', $images);
+    }
+
+    public function movement(Request $request): Response
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        DB::transaction(function () use ($user, $request) {
+            /** @var null|Album $album */
+            $album = $user->albums()->find((int) $request->album_id);
+            $user->images()->where('key', $request->image_key)->update([
+                'album_id' => $album->id ?? null,
+            ]);
+            if ($album) {
+                $album->image_num = $album->images()->count();
+                $album->save();
+            }
+            if ($albumId = (int) $request->album_id) {
+                /** @var Album $originAlbum */
+                $originAlbum = $user->albums()->find($albumId);
+                $originAlbum->image_num = $originAlbum->images()->count();
+                $originAlbum->save();
+            }
+        });
+        return $this->success('移动成功');
     }
 
     public function destroy(Request $request): Response

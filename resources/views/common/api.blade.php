@@ -754,6 +754,103 @@
                 </div>
             </div>
             <div>
+                <p class="text-lg text-gray-700 font-semibold">移动图片到相册</p>
+                <x-code><span class="text-red-300 select-none">POST </span>/image/move</x-code>
+
+                <div class="my-4 overflow-x-auto">
+                    <p class="text-sm mb-2">Headers</p>
+                    <table class="min-w-full">
+                        <thead class="bg-white border">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                字段
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                类型
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                说明
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white border divide-y text-sm">
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap"><span class="text-red-500">*</span>Content-Type</td>
+                            <td class="px-3 py-2 whitespace-nowrap">String</td>
+                            <td class="px-3 py-2 whitespace-nowrap">需要设置为 multipart/form-data</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="my-4 overflow-x-auto">
+                    <p class="text-sm mb-2">请求参数(Body)</p>
+                    <table class="min-w-full">
+                        <thead class="bg-white border">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                字段
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                类型
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                说明
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white border divide-y text-sm">
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap"><span class="text-red-500">*</span>image_key</td>
+                            <td class="px-3 py-2 whitespace-nowrap">String</td>
+                            <td class="px-3 py-2 whitespace-nowrap">图片密钥</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap">album_id</td>
+                            <td class="px-3 py-2 whitespace-nowrap">String</td>
+                            <td class="px-3 py-2 whitespace-nowrap">相册id（不传即移出相册）</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="my-4 overflow-x-auto">
+                    <p class="text-sm mb-2">返回参数</p>
+                    <table class="min-w-full">
+                        <thead class="bg-white border">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                字段
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                类型
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                说明
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white border divide-y text-sm">
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap">status</td>
+                            <td class="px-3 py-2 whitespace-nowrap">Boolean</td>
+                            <td class="px-3 py-2 whitespace-nowrap">状态，true 或 false</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap">message</td>
+                            <td class="px-3 py-2 whitespace-nowrap">String</td>
+                            <td class="px-3 py-2 whitespace-nowrap">描述信息</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap">data</td>
+                            <td class="px-3 py-2 whitespace-nowrap">Object</td>
+                            <td class="px-3 py-2 whitespace-nowrap">数据</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
                 <p class="text-lg text-gray-700 font-semibold">删除图片</p>
                 <x-code><span class="text-red-300 select-none">DELETE </span>/images/:key</x-code>
 
