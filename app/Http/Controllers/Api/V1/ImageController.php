@@ -105,4 +105,19 @@ class ImageController extends Controller
         (new UserService())->deleteImages([$request->route('key')], $user, 'key');
         return $this->success('删除成功');
     }
+
+    // 当前用户是否已存在图片
+    public function is_exist(Request $request): Response
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        $exist = Image::query()
+                ->where('user_id', $user->id)
+                ->where('md5', $request->md5)
+                ->where('sha1', $request->sha1)
+                ->exists();
+
+        return $this->success('查询成功', ['exist' => $exist]);
+    }
 }
