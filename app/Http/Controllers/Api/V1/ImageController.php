@@ -112,12 +112,14 @@ class ImageController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
-        $exist = Image::query()
+        $image = Image::query()
                 ->where('user_id', $user->id)
                 ->where('md5', $request->md5)
                 ->where('sha1', $request->sha1)
-                ->exists();
+                ->firstOr(fn() => abort(404));
 
-        return $this->success('查询成功', ['exist' => $exist]);
+        return $this->success('查询图片存在', $image->setAppends(['pathname', 'links'])->only(
+            'key', 'name', 'pathname', 'origin_name', 'size', 'mimetype', 'extension', 'md5', 'sha1', 'links'
+        ));
     }
 }
