@@ -31,6 +31,7 @@ Route::group([
         'middleware' => 'auth:sanctum',
     ], function () {
         Route::get('images', [ImageController::class, 'images']);
+        Route::get('images/{key}', [ImageController::class, 'get']);
         Route::post('image/move', [ImageController::class, 'movement']);
         Route::delete('images/{key}', [ImageController::class, 'destroy']);
         Route::post('image/exist', [ImageController::class, 'is_exist']);

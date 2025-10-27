@@ -98,6 +98,19 @@ class ImageController extends Controller
         return $this->success('移动成功');
     }
 
+    // 获取图片
+    public function get(Request $request): Response
+    {
+        /** @var User $user */
+        $user = Auth::user();
+        $image = $user->images()->where('key', $request->route('key'))->firstOrFail();
+        $image->append(['pathname', 'links'])->setVisible([
+                'album', 'key', 'name', 'pathname', 'origin_name', 'size', 'mimetype', 'extension', 'md5', 'sha1',
+                'width', 'height', 'links', 'human_date', 'date',
+            ]);
+        return $this->success('success', $image);
+    }
+    
     public function destroy(Request $request): Response
     {
         /** @var User $user */
