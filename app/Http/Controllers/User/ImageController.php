@@ -53,7 +53,7 @@ class ImageController extends Controller
         $image->strategy?->setVisible(['name']);
         $image->album?->setVisible(['name']);
         $image->append(['url', 'thumb_url', 'filename', 'links'])->setVisible([
-            'id', 'filename', 'origin_name', 'url', 'thumb_url', 'width', 'height', 'size', 'mimetype', 'md5', 'sha1',
+            'id', 'filename', 'origin_name', 'url', 'thumb_url', 'width', 'height', 'size', 'mimetype', 'key', 'md5', 'sha1',
             'permission', 'strategy', 'album', 'uploaded_ip', 'links', 'created_at'
         ]);
         return $this->success('success', compact('image'));

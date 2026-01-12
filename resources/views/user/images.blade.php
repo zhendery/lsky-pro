@@ -175,6 +175,10 @@
                 <p class="my-2 break-words text-gray-600">__width__ * __height__</p>
             </div>
             <div>
+                <div class="text-sm font-semibold">键</div>
+                <p class="my-2 break-words text-gray-600">__key__</p>
+            </div>
+            <div>
                 <div class="text-sm font-semibold">MD5</div>
                 <p class="my-2 break-words text-gray-600">__md5__</p>
             </div>
@@ -693,6 +697,7 @@
                                 .replace(/__mimetype__/g, image.mimetype)
                                 .replace(/__width__/g, image.width)
                                 .replace(/__height__/g, image.height)
+                                .replace(/__key__/g, image.key)
                                 .replace(/__md5__/g, image.md5)
                                 .replace(/__sha1__/g, image.sha1)
                                 .replace(/__permission__/g, image.permission === 1 ? '公开' : '私有')
