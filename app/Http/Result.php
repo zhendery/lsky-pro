@@ -11,9 +11,9 @@ trait Result
         return $this->response(true, $message, $data);
     }
 
-    public function fail(string $message = 'fail', $data = []): Response
+    public function fail(string $message = 'fail', $data = [], int $statusCode = 400): Response
     {
-        return $this->response(false, $message, $data);
+        return $this->response(false, $message, $data, $statusCode);
     }
 
     public function response(bool $status, string $message = '', $data = []): Response
