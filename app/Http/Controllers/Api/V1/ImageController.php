@@ -125,10 +125,20 @@ class ImageController extends Controller
         /** @var User $user */
         $user = Auth::user();
 
+        $file = $request->file('file');
+        if($file){
+            $md5 = md5_file($file->getRealPath());
+            $sha1 = sha1_file($file->getRealPath());
+        }
+        else{
+            $md5 = $request->md5;
+            $sha1 = $request->sha1;
+        }
+
         $image = Image::query()
                 ->where('user_id', $user->id)
-                ->where('md5', $request->md5)
-                ->where('sha1', $request->sha1)
+                ->where('md5', $md5)
+                ->where('sha1', $sha1)
                 ->firstOr(fn() => abort(404));
 
         return $this->success('查询图片存在', $image->setAppends(['pathname', 'links'])->only(

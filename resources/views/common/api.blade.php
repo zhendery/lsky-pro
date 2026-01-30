@@ -708,7 +708,7 @@
                         <tr>
                             <td class="px-3 py-2 whitespace-nowrap">data</td>
                             <td class="px-3 py-2 whitespace-nowrap">Object</td>
-                            <td class="px-3 py-2 whitespace-nowrap">数据 同上传返回</td>
+                            <td class="px-3 py-2 whitespace-nowrap">图片数据 同上传返回</td>
                         </tr>
                         </tbody>
                     </table>
@@ -1043,6 +1043,73 @@
                             <td class="px-3 py-2 whitespace-nowrap">data</td>
                             <td class="px-3 py-2 whitespace-nowrap">Object</td>
                             <td class="px-3 py-2 whitespace-nowrap">数据</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div>
+                <p class="text-lg text-gray-700 font-semibold">查询图片是否存在</p>
+                <x-code><span class="text-green-500 select-none">POST </span>/image/exist</x-code>
+
+                <p class="text-sm mb-2"><span class="text-red-500">*</span>传文件则以文件为准，也可以自己计算好md5和sha1值而不传文件以节省流量和服务器压力。如果图片不存在则直接返回404，需要注意如果开启格式转换、图片压缩等功能，需要以处理后的图片进行查询；而开启原图保护、水印等功能则需要以原图进行查询。</p>
+                <div class="my-4 overflow-x-auto">
+                    <p class="text-sm mb-2">请求参数(Body)</p>
+                    <table class="min-w-full">
+                        <thead class="bg-white border">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                字段
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                类型
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                说明
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white border divide-y text-sm">
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap">file</td>
+                            <td class="px-3 py-2 whitespace-nowrap">File</td>
+                            <td class="px-3 py-2 whitespace-nowrap">图片文件</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap">md5</td>
+                            <td class="px-3 py-2 whitespace-nowrap">String</td>
+                            <td class="px-3 py-2 whitespace-nowrap">图片文件的md5值</td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap">sha1</td>
+                            <td class="px-3 py-2 whitespace-nowrap">String</td>
+                            <td class="px-3 py-2 whitespace-nowrap">图片文件的sha1值</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="my-4 overflow-x-auto">
+                    <p class="text-sm mb-2">返回参数</p>
+                    <table class="min-w-full">
+                        <thead class="bg-white border">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                字段
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                类型
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                说明
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white border divide-y text-sm">
+                        <tr>
+                            <td class="px-3 py-2 whitespace-nowrap">data</td>
+                            <td class="px-3 py-2 whitespace-nowrap">Object</td>
+                            <td class="px-3 py-2 whitespace-nowrap">图片数据 同获取图片返回</td>
                         </tr>
                         </tbody>
                     </table>
