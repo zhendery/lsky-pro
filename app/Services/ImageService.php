@@ -549,15 +549,13 @@ class ImageService
         $watermarkInterventionImage = $this->getWatermark($driver, $options);
         $watermark = new \Imagick();
         $watermark->readImageBlob($watermarkInterventionImage->encode());
+        $watermarkWidth = $watermark->getImageWidth();
+        $watermarkHeight = $watermark->getImageHeight();
 
         $imagick = $imagick->coalesceImages();
         if ($position === 'tiled') {
-            $watermarkWidth = $watermark->getImageWidth();
-            $watermarkHeight = $watermark->getImageHeight();
-            
             $tiledCanvas = new \Imagick();
             $tiledCanvas->newImage($imageWidth, $imageHeight, new \ImagickPixel('transparent'));
-            
             // 平铺水印
             for ($x = 0; $x < $imageWidth; $x++) {
                 for ($y = 0; $y < $imageHeight; $y++) {
@@ -571,16 +569,49 @@ class ImageService
             }
             $tiledCanvas->destroy();
         } else {
+            list($posX, $posY) = self::calculatePosition($position, $imageWidth, $imageHeight,
+                $watermarkWidth, $watermarkHeight, $offsetX, $offsetY);
             foreach ($imagick as $frame) {
-                $this->applySingleWatermark($frame, $watermark, $position, $offsetX, $offsetY, $options);
-                $imagick->setImage($frame);
-                $frame->destroy();
+                $frame->compositeImage($watermark, \Imagick::COMPOSITE_OVER, $posX, $posY);
             }
         }
         $watermark->destroy();
 
         $imagick = $imagick->deconstructImages();
         return $imagick;
+    }
+
+     /**
+     * 计算水印位置
+     */
+    private static function calculatePosition(string $position, int $imageWidth, int $imageHeight,
+        int $watermarkWidth, int $watermarkHeight, int $x, int $y): array 
+    {
+        // 还原Intervention Image 的位置逻辑。
+        switch ($position) {
+            case 'top':
+                return [intval(($imageWidth - $watermarkWidth) / 2), $y];
+            case 'top-left':
+                return [$x, $y];
+            case 'top-right':
+                return [$imageWidth - $watermarkWidth - $x, $y];
+            case 'left':
+                return [$x, intval(($imageHeight - $watermarkHeight) / 2)];
+            case 'right':
+                return [$imageWidth - $watermarkWidth - $x, intval(($imageHeight - $watermarkHeight) / 2)];
+            case 'bottom':
+                return [intval(($imageWidth - $watermarkWidth) / 2), $imageHeight - $watermarkHeight - $y];
+            case 'bottom-left':
+                return [$x, $imageHeight - $watermarkHeight - $y];
+            case 'bottom-right':
+                return [$imageWidth - $watermarkWidth - $x, $imageHeight - $watermarkHeight - $y];
+            case 'center':
+            default:
+                return [
+                    intval(($imageWidth - $watermarkWidth) / 2),
+                    intval(($imageHeight - $watermarkHeight) / 2)
+                ];
+        }
     }
 
     /**
