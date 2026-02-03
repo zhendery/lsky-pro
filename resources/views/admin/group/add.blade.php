@@ -223,7 +223,7 @@
                                     <x-switch id="configs[is_enable_watermark]" name="configs[is_enable_watermark]" value="1"></x-switch>
                                 </x-fieldset>
                                 <div class="col-span-6 mt-4 mb-4">
-                                    <x-fieldset title="动态图跳过水印处理" faq="开启后，动态图（多帧gif、webp、psd）将会跳过水印处理，以降低服务器资源。">
+                                    <x-fieldset title="动态图跳过水印处理" faq="开启后，动态图（多帧gif、webp、psd）将会跳过水印处理，以降低服务器资源占用。">
                                         <x-switch id="configs[watermark_configs][is_skip_animated]" name="configs[watermark_configs][is_skip_animated]" value="1" :checked="true"></x-switch>
                                     </x-fieldset>
                                 </div>

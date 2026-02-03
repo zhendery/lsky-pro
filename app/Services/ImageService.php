@@ -550,6 +550,10 @@ class ImageService
         $imageWidth = $imagick->getImageWidth();
         $imageHeight = $imagick->getImageHeight();
 
+        /*
+        实际上用Imagick的setgravity和annotateImage可以很方便的添加文字水印，但为了保留原本的getWatermark方法，
+        这里还是用InterventionImage生成统一的水印图片，然后转成Imagick对象，再合成到原图上。
+        */
         $watermarkInterventionImage = $this->getWatermark($driver, $options);
         $watermark = new \Imagick();
         $watermark->readImageBlob($watermarkInterventionImage->encode());
@@ -560,6 +564,10 @@ class ImageService
         if ($position === 'tiled') {
             $tiledCanvas = new \Imagick();
             $tiledCanvas->newImage($imageWidth, $imageHeight, new \ImagickPixel('transparent'));
+            /*
+            为什么不直接用一张超大的平铺水印临时贴图保存起来直接使用，而是每次都重新生成呢。是因为用户随时可能修改贴水印相关设置项，以及不同角色组的水印设置也各不相同。
+            当然后续可以按照角色组设置项缓存生成的平铺水印贴图，以及修改设置后重置缓存以进行优化。
+            */
             // 平铺水印
             for ($x = 0; $x < $imageWidth; $x++) {
                 for ($y = 0; $y < $imageHeight; $y++) {
