@@ -198,14 +198,15 @@ class ImageService
                 $configs->get(GroupConfigKey::IsEnableWatermark) &&
                 collect($configs->get(GroupConfigKey::WatermarkConfigs))->get('mode', Mode::Overlay) == Mode::Overlay
             ) {
-                $frameCount = $handleImage->getNumberImages();
-                // 动态图片不能添加水印
-                if ($frameCount == 1) {
-                    $watermarkImage = $this->stickWatermark($file, collect($configs->get(GroupConfigKey::WatermarkConfigs)));
-                    $watermarkImage->save();
-                    $file = new UploadedFile($watermarkImage->basePath(), $file->getClientOriginalName(), $file->getMimeType());
-                    $watermarkImage->destroy();
+                $watermarkImage = $this->stickWatermark($handleImage, collect($configs->get(GroupConfigKey::WatermarkConfigs)));
+                // 如果目标格式是动态的，则存储为多页，否则存储为单页
+                if(in_array($format, ['gif', 'webp', 'psd'])){
+                    $result = $watermarkImage->writeImages($handleImagePath, true);
+                }else{
+                    $result = $watermarkImage->writeImage($handleImagePath);
                 }
+                $file = new UploadedFile($handleImagePath, $file->getClientOriginalName(), $file->getMimeType());
+                $watermarkImage->destroy();
             }
             $handleImage->destroy();
         }
@@ -528,44 +529,58 @@ class ImageService
     /**
      * 合成水印
      *
-     * @param  mixed  $image
+     * @param  \Imagick  $imagick
      * @param  Collection  $configs
-     * @return \Intervention\Image\Image
+     * @return \Imagick
      */
-    public function stickWatermark(mixed $image, Collection $configs): \Intervention\Image\Image
+    public function stickWatermark(\Imagick $imagick, Collection $configs): \Imagick
     {
         $driver = $configs->get('driver');
         $options = collect($configs->get("drivers")[$driver]);
-        $image = InterventionImage::make($image);
 
         $position = $options->get(FontOption::Position, 'bottom-right');
         $offsetX = (int) $options->get(FontOption::X, 10);
         $offsetY = (int) $options->get(FontOption::Y, 10);
 
-        $watermark = $this->getWatermark($driver, $options);
-
         // 原图宽高
-        $imageWidth = $image->width();
-        $imageHeight = $image->height();
+        $imageWidth = $imagick->getImageWidth();
+        $imageHeight = $imagick->getImageHeight();
 
-        // 水印画布宽高
-        $watermarkWidth = $watermark->width();
-        $watermarkHeight = $watermark->height();
+        $watermarkInterventionImage = $this->getWatermark($driver, $options);
+        $watermark = new \Imagick();
+        $watermark->readImageBlob($watermarkInterventionImage->encode());
 
+        $imagick = $imagick->coalesceImages();
         if ($position === 'tiled') {
+            $watermarkWidth = $watermark->getImageWidth();
+            $watermarkHeight = $watermark->getImageHeight();
+            
+            $tiledCanvas = new \Imagick();
+            $tiledCanvas->newImage($imageWidth, $imageHeight, new \ImagickPixel('transparent'));
+            
             // 平铺水印
             for ($x = 0; $x < $imageWidth; $x++) {
                 for ($y = 0; $y < $imageHeight; $y++) {
-                    $image->insert($watermark, '', $x, $y);
+                    $tiledCanvas->compositeImage($watermark, \Imagick::COMPOSITE_OVER, $x, $y);
                     $y += $watermarkHeight + $offsetY;
                 }
                 $x += $watermarkWidth + $offsetX;
             }
+            foreach ($imagick as $frame) {
+                $frame->compositeImage($tiledCanvas, \Imagick::COMPOSITE_OVER, 0, 0);
+            }
+            $tiledCanvas->destroy();
         } else {
-            $image->insert($watermark, $position, $offsetX, $offsetY);
+            foreach ($imagick as $frame) {
+                $this->applySingleWatermark($frame, $watermark, $position, $offsetX, $offsetY, $options);
+                $imagick->setImage($frame);
+                $frame->destroy();
+            }
         }
+        $watermark->destroy();
 
-        return $image;
+        $imagick = $imagick->deconstructImages();
+        return $imagick;
     }
 
     /**

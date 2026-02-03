@@ -161,14 +161,21 @@ class Controller extends BaseController
                 $contents = $image->filesystem()->read($image->pathname);
                 $configs = collect($image->group?->configs->get(GroupConfigKey::WatermarkConfigs));
 
-                // 是否启用了水印功能，跳过gif和ico图片
+                // 是否启用了水印功能，跳过svg和ico图片
                 if (
                     $image->group?->configs->get(GroupConfigKey::IsEnableWatermark) &&
                     $configs->get('mode', Mode::Overlay) == Mode::Dynamic &&
-                    ! in_array($image->extension, ['ico', 'gif', 'svg'])
+                    ! in_array($image->extension, ['ico', 'svg'])
                 ) {
                     $quality = $image->group?->configs->get(GroupConfigKey::ImageSaveQuality, 75);
-                    $contents = $service->stickWatermark($contents, $configs)->encode($image->extension, $quality)->getEncoded();
+
+                    $watermarkImage = new \Imagick();
+                    $watermarkImage->readImageBlob($contents);
+                    $watermarkImage = $service->stickWatermark($watermarkImage, $configs);
+                    $watermarkImage->setImageFormat($image->extension);
+                    $watermarkImage->setCompressionQuality($quality);
+                    $contents = $watermarkImage->getImagesBlob();
+                    $watermarkImage->destroy();
                 }
                 $cacheTtl = (int)$image->group?->configs->get(GroupConfigKey::ImageCacheTtl, 0);
                 // 是否启用了缓存
