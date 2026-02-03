@@ -535,6 +535,10 @@ class ImageService
      */
     public function stickWatermark(\Imagick $imagick, Collection $configs): \Imagick
     {
+        if ($imagick->getNumberImages() > 1 && $configs->get('is_skip_animated') == 1) {
+            return $imagick;
+        }
+
         $driver = $configs->get('driver');
         $options = collect($configs->get("drivers")[$driver]);
 

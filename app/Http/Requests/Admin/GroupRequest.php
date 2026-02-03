@@ -66,6 +66,7 @@ class GroupRequest extends FormRequest
             'configs.image_cache_ttl' => 'nullable|numeric',
 
             'configs.is_enable_watermark' => 'boolean',
+            'configs.watermark_configs.is_skip_animated' => 'boolean',
             'configs.watermark_configs.mode' => ['in:1,2'],
             'configs.watermark_configs.driver' => ['exclude_if:configs.is_enable_watermark,false', 'in:font,image'],
             'configs.watermark_configs.drivers.font.font' => [
@@ -143,6 +144,7 @@ class GroupRequest extends FormRequest
             'configs.image_cache_ttl' => '图片缓存时间',
 
             'configs.is_enable_watermark' => '是否启用水印功能',
+            'configs.watermark_configs.is_skip_animated' => '动态图跳过水印处理',
             'configs.watermark_configs.driver' => '水印驱动',
             'configs.watermark_configs.drivers.font.font' => '字体文件',
             'configs.watermark_configs.drivers.font.position' => '水印位置',

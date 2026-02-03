@@ -78,6 +78,7 @@ return [
         GroupConfigKey::WatermarkConfigs => [
             'mode' => Mode::Overlay,
             'driver' => 'font',
+            'is_skip_animated' => 1,
             'drivers' => [
                 'font' => [
                     FontOption::Text => 'Lsky Pro',
