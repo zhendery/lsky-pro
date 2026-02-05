@@ -549,6 +549,9 @@ class ImageService
         // 原图宽高
         $imageWidth = $imagick->getImageWidth();
         $imageHeight = $imagick->getImageHeight();
+        if ($imagick->getImageColorspace() == \Imagick::COLORSPACE_GRAY) {
+            $imagick->transformImageColorspace(\Imagick::COLORSPACE_SRGB);
+        }
 
         /*
         实际上用Imagick的setgravity和annotateImage可以很方便的添加文字水印，但为了保留原本的getWatermark方法，
@@ -559,8 +562,19 @@ class ImageService
         $watermark->readImageBlob($watermarkInterventionImage->encode());
         $watermarkWidth = $watermark->getImageWidth();
         $watermarkHeight = $watermark->getImageHeight();
+        
+        // $autoScale = $configs->get('auto_scale') == 1;
+        $autoScale = true;
+        list($scale, $posX, $posY) = self::calculatePosition($position, $imageWidth, $imageHeight,
+            $watermarkWidth, $watermarkHeight, $offsetX, $offsetY, $autoScale);
+        if($scale < 1){
+            $watermark->scaleImage(intval($watermarkWidth * $scale), intval($watermarkHeight * $scale));
+            $watermarkWidth = $watermark->getImageWidth();
+            $watermarkHeight = $watermark->getImageHeight();
+            $offsetX = intval($offsetX * $scale);
+            $offsetY = intval($offsetY * $scale);
+        }
 
-        $imagick = $imagick->coalesceImages();
         if ($position === 'tiled') {
             $tiledCanvas = new \Imagick();
             $tiledCanvas->newImage($imageWidth, $imageHeight, new \ImagickPixel('transparent'));
@@ -576,16 +590,13 @@ class ImageService
                 }
                 $x += $watermarkWidth + $offsetX;
             }
-            foreach ($imagick as $frame) {
-                $frame->compositeImage($tiledCanvas, \Imagick::COMPOSITE_OVER, 0, 0);
-            }
-            $tiledCanvas->destroy();
-        } else {
-            list($posX, $posY) = self::calculatePosition($position, $imageWidth, $imageHeight,
-                $watermarkWidth, $watermarkHeight, $offsetX, $offsetY);
-            foreach ($imagick as $frame) {
-                $frame->compositeImage($watermark, \Imagick::COMPOSITE_OVER, $posX, $posY);
-            }
+            $watermark->destroy();
+            $watermark = $tiledCanvas;
+        }
+
+        $imagick = $imagick->coalesceImages();
+        foreach ($imagick as $frame) {
+            $frame->compositeImage($watermark, \Imagick::COMPOSITE_OVER, $posX, $posY);
         }
         $watermark->destroy();
 
@@ -595,34 +606,59 @@ class ImageService
 
      /**
      * 计算水印位置
+     * @return array [scale, x, y]
      */
     private static function calculatePosition(string $position, int $imageWidth, int $imageHeight,
-        int $watermarkWidth, int $watermarkHeight, int $x, int $y): array 
+        int $watermarkWidth, int $watermarkHeight, int $x, int $y, bool $autoScale): array 
     {
+        $scale = 1;
+        if($autoScale){
+            $wWidth = $watermarkWidth;
+            $wHeight = $watermarkHeight;
+            if(strcmp($position, 'tiled') === 0 || strcmp($position, 'center') === 0){
+                $wHeight = $watermarkHeight + $y;
+                $wWidth = $watermarkWidth + $x;
+            }
+            else{
+                if(str_contains($position, 'top') || str_contains($position, 'bottom')){
+                    $wHeight = $watermarkHeight + $y;
+                }
+                if(str_contains($position, 'left') || str_contains($position, 'right')){
+                    $wWidth = $watermarkWidth + $x;
+                }
+            }
+            if($imageWidth < $wWidth || $imageHeight < $wHeight){
+                $scale = min($imageWidth / $wWidth,  $imageHeight / $wHeight);
+                $x = intval($x * $scale);
+                $y = intval($y * $scale);
+                $watermarkWidth = intval($watermarkWidth * $scale);
+                $watermarkHeight = intval($watermarkHeight * $scale);
+            }
+        }
+
         // 还原Intervention Image 的位置逻辑。
         switch ($position) {
+            case 'tiled':
+                return [$scale, 0, 0];
             case 'top':
-                return [intval(($imageWidth - $watermarkWidth) / 2), $y];
+                return [$scale, intval(($imageWidth - $watermarkWidth) / 2), $y];
             case 'top-left':
-                return [$x, $y];
+                return [$scale, $x, $y];
             case 'top-right':
-                return [$imageWidth - $watermarkWidth - $x, $y];
+                return [$scale, $imageWidth - $watermarkWidth - $x, $y];
             case 'left':
-                return [$x, intval(($imageHeight - $watermarkHeight) / 2)];
+                return [$scale, $x, intval(($imageHeight - $watermarkHeight) / 2)];
             case 'right':
-                return [$imageWidth - $watermarkWidth - $x, intval(($imageHeight - $watermarkHeight) / 2)];
+                return [$scale, $imageWidth - $watermarkWidth - $x, intval(($imageHeight - $watermarkHeight) / 2)];
             case 'bottom':
-                return [intval(($imageWidth - $watermarkWidth) / 2), $imageHeight - $watermarkHeight - $y];
+                return [$scale, intval(($imageWidth - $watermarkWidth) / 2), $imageHeight - $watermarkHeight - $y];
             case 'bottom-left':
-                return [$x, $imageHeight - $watermarkHeight - $y];
+                return [$scale, $x, $imageHeight - $watermarkHeight - $y];
             case 'bottom-right':
-                return [$imageWidth - $watermarkWidth - $x, $imageHeight - $watermarkHeight - $y];
+                return [$scale, $imageWidth - $watermarkWidth - $x, $imageHeight - $watermarkHeight - $y];
             case 'center':
             default:
-                return [
-                    intval(($imageWidth - $watermarkWidth) / 2),
-                    intval(($imageHeight - $watermarkHeight) / 2)
-                ];
+                return [$scale, intval(($imageWidth - $watermarkWidth) / 2), intval(($imageHeight - $watermarkHeight) / 2)];
         }
     }
 
