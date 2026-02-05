@@ -535,8 +535,11 @@ class ImageService
      */
     public function stickWatermark(\Imagick $imagick, Collection $configs): \Imagick
     {
-        if ($imagick->getNumberImages() > 1 && $configs->get('is_skip_animated') == 1) {
-            return $imagick;
+        if ($imagick->getNumberImages() > 1) {
+            if($configs->get('is_skip_animated') == 1){
+                return $imagick;
+            }
+            $imagick = $imagick->coalesceImages();
         }
 
         $driver = $configs->get('driver');
@@ -592,10 +595,12 @@ class ImageService
             $watermark = $tiledCanvas;
         }
 
-        $imagick = $imagick->coalesceImages();
+        // error_log("↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
         foreach ($imagick as $frame) {
+            // error_log("width: {$frame->getImageWidth()}, height: {$frame->getImageHeight()}");
             $frame->compositeImage($watermark, \Imagick::COMPOSITE_OVER, $posX, $posY);
         }
+        // error_log("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
         $watermark->destroy();
 
         $imagick = $imagick->deconstructImages();
