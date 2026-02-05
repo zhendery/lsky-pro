@@ -318,7 +318,7 @@
                                     </div>
                                 </div>
                                 <div class="col-span-6 mt-4 mb-4">
-                                    <x-fieldset title="水印适配尺寸" faq="开启后，当原图尺寸较小时，会自动缩放水印，以适配原图尺寸。">
+                                    <x-fieldset title="水印尺寸自适应" faq="开启后，当原图尺寸较小时，会自动缩放水印，以适配原图尺寸。">
                                         <x-switch id="configs[watermark_configs][auto_scale]" name="configs[watermark_configs][auto_scale]" value="1" :checked="(bool)($group->configs['watermark_configs']['auto_scale'] ?? 0)"></x-switch>
                                     </x-fieldset>
                                 </div>
