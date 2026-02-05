@@ -1052,7 +1052,7 @@
                 <p class="text-lg text-gray-700 font-semibold">查询图片是否存在</p>
                 <x-code><span class="text-green-500 select-none">POST </span>/image/exist</x-code>
 
-                <p class="text-sm mb-2"><span class="text-red-500">*</span>传文件则以文件为准，也可以自己计算好md5和sha1值而不传文件以节省流量和服务器压力。如果图片不存在则直接返回404，需要注意如果开启格式转换、图片压缩等功能，需要以处理后的图片进行查询；而开启原图保护、水印等功能则需要以原图进行查询。</p>
+                <p class="text-sm mb-2"><span class="text-red-500">*</span>传文件则以文件为准，也可以自己计算好md5和sha1值而不传文件以节省流量和服务器压力。如果图片不存在则直接返回404，需要注意如果开启格式转换、图片压缩等功能，需要以处理后的图片进行查询；而开启覆盖水印等功能则需要以原图进行查询。（总之就是以服务器存储的图片文件为准）</p>
                 <div class="my-4 overflow-x-auto">
                     <p class="text-sm mb-2">请求参数(Body)</p>
                     <table class="min-w-full">
