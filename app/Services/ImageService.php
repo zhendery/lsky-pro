@@ -563,10 +563,8 @@ class ImageService
         $watermarkWidth = $watermark->getImageWidth();
         $watermarkHeight = $watermark->getImageHeight();
         
-        // $autoScale = $configs->get('auto_scale') == 1;
-        $autoScale = true;
         list($scale, $posX, $posY) = self::calculatePosition($position, $imageWidth, $imageHeight,
-            $watermarkWidth, $watermarkHeight, $offsetX, $offsetY, $autoScale);
+            $watermarkWidth, $watermarkHeight, $offsetX, $offsetY, $configs->get('auto_scale') == 1);
         if($scale < 1){
             $watermark->scaleImage(intval($watermarkWidth * $scale), intval($watermarkHeight * $scale));
             $watermarkWidth = $watermark->getImageWidth();

@@ -317,6 +317,11 @@
                                         <x-input type="number" name="configs[watermark_configs][drivers][image][y]" id="configs[watermark_configs][drivers][image][y]" autocomplete="y" placeholder="Y轴偏移量" />
                                     </div>
                                 </div>
+                                <div class="col-span-6 mt-4 mb-4">
+                                    <x-fieldset title="水印适配尺寸" faq="开启后，当原图尺寸较小时，会自动缩放水印，以适配原图尺寸。">
+                                        <x-switch id="configs[watermark_configs][auto_scale]" name="configs[watermark_configs][auto_scale]" value="1" :checked="true"></x-switch>
+                                    </x-fieldset>
+                                </div>
                             </div>
                         </div>
                     </div>

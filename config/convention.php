@@ -79,6 +79,7 @@ return [
             'mode' => Mode::Overlay,
             'driver' => 'font',
             'is_skip_animated' => 1,
+            'auto_scale' => 1,
             'drivers' => [
                 'font' => [
                     FontOption::Text => 'Lsky Pro',
